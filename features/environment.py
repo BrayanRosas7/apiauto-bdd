@@ -25,10 +25,14 @@ def before_all(context):
     context.project_list = []
     context.section_list = []
     context.task_list = []
+    context.comment_list = []
+    context.label_list = []
     context.resource_list = {
         "projects": [],
         "sections": [],
-        "tasks": []
+        "tasks": [] ,
+        "comments" : [] ,
+        "labels" : []
     }
 
     context.url = BASE_URL
@@ -75,6 +79,17 @@ def before_scenario(context, scenario):
         LOGGER.debug("Task id created: %s", context.task_id)
         context.resource_list["tasks"].append(context.task_id)
 
+    if "comment_id" in scenario.tags:
+        response = create_comment(context=context,project_id=context.project_id)
+        context.comment_id = response["body"]["id"]
+        LOGGER.debug("Comment id created: %s", context.comment_id)
+        context.resource_list["comments"].append(context.comment_id)
+
+    if "label_id" in scenario.tags:
+        response = create_label(context=context)
+        context.label_id = response["body"]["id"]
+        LOGGER.debug("Label id created: %s", context.label_id)
+        context.resource_list["labels"].append(context.label_id)
 
 def after_scenario(context, scenario):
     print("after scenario")
@@ -147,4 +162,24 @@ def create_task(context, project_id=None, section_id=None):
     response = RestClient().send_request(method_name="post", session=context.session, headers=context.headers,
                                          url=context.url + "tasks", data=data)
 
+    return response
+
+def create_comment(context , project_id=None ,task_id=None):
+    data = {
+        "content": "Comment created in the feature"
+    }
+    if project_id:
+        data["project_id"] = project_id
+    if task_id:
+        data["section_id"] = task_id
+
+    response = RestClient().send_request(method_name="post", session=context.session, headers=context.headers,
+                                         url=context.url + "comments", data=data)
+
+    return response
+
+def create_label(context):
+    data = {"name": "Label4"}
+    response = RestClient().send_request(method_name="post", session=context.session, headers=context.headers,
+                                         url=context.url + "labels", data=data)
     return response

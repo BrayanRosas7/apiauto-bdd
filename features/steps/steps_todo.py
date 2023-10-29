@@ -48,6 +48,7 @@ def step_call_endpoint(context, feature, method_name, param):
         if context.text:
             data = get_data_by_feature(context)
     elif method_name == "DELETE" or (method_name == "GET" and param != "None"):
+        context.method=method_name
         url = get_url_by_feature(context)
     # if context.table:
     #     LOGGER.debug("Table: %s", context.table)
@@ -95,11 +96,16 @@ def get_url_by_feature(context):
         feature_id = context.section_id
     elif context.feature_name == "tasks":
         feature_id = context.task_id
-    elif context.feature_name == "comments":
-        feature_id = context.task_id
-
+    elif context.feature_name == "labels":
+        feature_id = context.label_id
     url = f"{context.url}{context.feature_name}/{feature_id}"
 
+    if context.feature_name == "comments":
+        feature_id = context.comment_id
+        url = f"{context.url}{context.feature_name}/{feature_id}"
+        if context.method == "GET":
+            feature_id = context.project_id
+            url = f"{context.url}{context.feature_name}?project_id={feature_id}"
     return url
 
 
@@ -127,6 +133,9 @@ def get_data_by_feature(context):
         if "project_id" in dictionary:
             dictionary["project_id"] = context.project_id
     if context.feature_name == "tasks":
+        if "project_id" in dictionary:
+            dictionary["project_id"] = context.project_id
+    if context.feature_name == "comments":
         if "project_id" in dictionary:
             dictionary["project_id"] = context.project_id
 

@@ -60,3 +60,24 @@ Feature: Tasks
     When I want close the task
     Then I want to reopen the task
     And I receive a 204 status code in response
+
+    @project_id
+  Scenario Outline:  Verify POST task creates multiple tasks using a project provided correctly
+      As a user I want to create multiple tasks with project id provided from TODOIST API
+
+    Given I set the base url and headers
+    When I call to tasks endpoint using "POST" method using the "task data" as parameter
+    """
+    {
+      "content": "<content>",
+      "project_id": "project_id",
+      "due_string": "<due_string>",
+      "due_lang": "es",
+      "priority": <priority>
+    }
+    """
+    Examples:
+    |  content      |  due_string          |   priority   |
+    |  First task   |  tomorrow at 11:00   |      4       |
+    |  Second task  |  tomorrow at 12:00   |      2       |
+    |  Third task   |  tomorrow at 10:00   |      3       |
